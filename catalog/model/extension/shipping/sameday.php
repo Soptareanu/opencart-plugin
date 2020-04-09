@@ -74,7 +74,7 @@ class ModelExtensionShippingSameday extends Model
 
             $quote_data[$service['name']] = array(
                 'sameday_name' => $service['name'],
-                'code' => 'sameday.' . $service['name'] . '.' . $service['sameday_id'],
+                'code' => 'sameday.' . $service['sameday_code'] . '.' . $service['sameday_id'],
                 'title' => $service['name'],
                 'cost' => $price,
                 'tax_class_id' => $this->getConfig('sameday_tax_class_id'),
@@ -117,13 +117,40 @@ class ModelExtensionShippingSameday extends Model
 
     /**
      * @param $serviceId
+     *
+     * @return bool
      */
     private function isOpcg($serviceId)
     {
-        $query = 'SELECT * FROM ' . DB_PREFIX . "sameday_service WHERE id='{$this->db->escape($serviceId)}'";
-        $service = $this->db->query($query)->row;
+        $service = $this->getServiceById($serviceId);
+        $serviceOptionalTax = unserialize($service['service_optional_taxes']);
 
-        var_dump(unserialize($service['service_optional_taxes'])); exit;
+        $isOpcg = false;
+        if (! $serviceOptionalTax) {
+            return  $isOpcg;
+        }
+
+        /** @var \Sameday\Objects\Service\OptionalTaxObject[] $serviceOptionalTax */
+        foreach ($serviceOptionalTax as $taxObject) {
+            if ($taxObject->getCode() === 'OPCG' && $taxObject->getPackageType()->getType() === \Sameday\Objects\Types\PackageType::PARCEL) {
+                $isOpcg = true;
+                break;
+            }
+        }
+
+        return $isOpcg;
+    }
+
+    /**
+     * @param $serviceId
+     *
+     * @return array|null
+     */
+    private function getServiceById($serviceId)
+    {
+        $query = 'SELECT * FROM ' . DB_PREFIX . "sameday_service WHERE id='{$this->db->escape($serviceId)}'";
+
+        return $this->db->query($query)->row;
     }
 
     private function syncLockers()

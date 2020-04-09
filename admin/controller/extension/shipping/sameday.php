@@ -708,7 +708,15 @@ class ControllerExtensionShippingSameday extends Controller
 
         $parts = explode('.', $orderInfo['shipping_code'], 4);
         $data['default_service_id'] = isset($parts[2]) ? $parts[2] : null;
-        $orderInfo['locker_id'] = isset($parts[3]) ? $parts[3] : null;
+        $orderInfo['locker_id'] = null;
+        $orderInfo['is_opcg'] = null;
+        if (isset($parts[3])) {
+            if ($parts[3] === 'isOpcg') {
+                $orderInfo['is_opcg'] = 1;
+            } else {
+                $orderInfo['locker_id'] = $parts[3];
+            }
+        }
 
         if ($this->request->server['REQUEST_METHOD'] === 'POST' && $this->validateFormBeforeAwbGeneration()) {
             $params = array_merge($this->request->post, $orderInfo);
