@@ -5,9 +5,15 @@ require_once DIR_SYSTEM . 'library/sameday-php-sdk/src/Sameday/autoload.php';
 class ModelExtensionShippingSameday extends Model
 {
     /**
-     * @param array $address
+     * @param $address
+     * @return array|null
      *
-     * @return array
+     * @throws \Sameday\Exceptions\SamedayAuthenticationException
+     * @throws \Sameday\Exceptions\SamedayAuthorizationException
+     * @throws \Sameday\Exceptions\SamedayNotFoundException
+     * @throws \Sameday\Exceptions\SamedayOtherException
+     * @throws \Sameday\Exceptions\SamedaySDKException
+     * @throws \Sameday\Exceptions\SamedayServerException
      */
     public function getQuote($address)
     {
@@ -61,7 +67,7 @@ class ModelExtensionShippingSameday extends Model
 
             if ($isEstimatedCostEnabled) {
                 $estimatedCost = $this->estimateCost($address, $service['sameday_id']);
-                if ($estimatedCost != null) {
+                if ($estimatedCost !== null) {
                     $price = $estimatedCost;
                 }
             }
@@ -79,12 +85,18 @@ class ModelExtensionShippingSameday extends Model
                         $this->getConfig('config_tax')
                     ),
                     $this->session->data['currency']
-                )
+                ),
+                'is_open_package' => $this->getConfig('sameday_open_package'),
+                'open_package_label' => $this->getConfig('sameday_open_package_label')
             );
 
             if ($service['sameday_code'] === "LN") {
                 $this->syncLockers();
                 $quote_data[$service['name']]['lockers'] = $this->getLockers();
+            }
+
+            if ($this->isOpcg($service['id'])) {
+                $quote_data[$service['name']]['opcg'] = $service['id'];
             }
         }
 
@@ -103,12 +115,23 @@ class ModelExtensionShippingSameday extends Model
         return $method_data;
     }
 
+    /**
+     * @param $serviceId
+     */
+    private function isOpcg($serviceId)
+    {
+        $query = 'SELECT * FROM ' . DB_PREFIX . "sameday_service WHERE id='{$this->db->escape($serviceId)}'";
+        $service = $this->db->query($query)->row;
+
+        var_dump(unserialize($service['service_optional_taxes'])); exit;
+    }
+
     private function syncLockers()
     {
         $key =  "{$this->getPrefix()}sameday_sync_lockers_ts";
         $time = time();
 
-        if ($time >= ($this->getConfig($key) + 3600)) {
+        if ($time >= ($this->getConfig($key) + 86400)) {
             $this->lockersRefresh();
         }
     }

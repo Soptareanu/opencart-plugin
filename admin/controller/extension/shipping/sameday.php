@@ -154,6 +154,8 @@ class ControllerExtensionShippingSameday extends Controller
             'entry_geo_zone',
             'entry_status',
             'entry_estimated_cost',
+            'entry_open_package',
+            'entry_open_package_label',
             'entry_sort_order',
 
             'column_internal_id',
@@ -226,6 +228,8 @@ class ControllerExtensionShippingSameday extends Controller
             'geo_zone_id',
             'status',
             'estimated_cost',
+            'open_package',
+            'open_package_label',
             'sort_order'
         )));
 
@@ -255,6 +259,7 @@ class ControllerExtensionShippingSameday extends Controller
         $sameday = new \Sameday\Sameday($this->initClient());
 
         $this->model_extension_shipping_sameday->ensureSamedayServiceCodeColumn();
+        $this->model_extension_shipping_sameday->ensureSamedayServiceOptionalTaxesColumn();
 
         $remoteServices = [];
         $page = 1;
@@ -272,8 +277,12 @@ class ControllerExtensionShippingSameday extends Controller
                 if (!$service) {
                     // Service not found, add it.
                     $this->model_extension_shipping_sameday->addService($serviceObject, $this->isTesting());
-                } elseif ($service['sameday_code'] != $serviceObject->getCode()) {
-                    $this->model_extension_shipping_sameday->updateServiceCode($service['id'], $serviceObject->getCode());
+                } else {
+                    $this->model_extension_shipping_sameday->updateServiceCodeAndOptionalTaxes(
+                        $service['id'],
+                        $serviceObject->getCode(),
+                        !empty($serviceObject->getOptionalTaxes()) ? serialize($serviceObject->getOptionalTaxes()) : ''
+                    );
                 }
 
                 // Save as current sameday service.

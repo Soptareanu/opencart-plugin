@@ -92,6 +92,21 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input_open_package"><?php echo $entry_open_package; ?></label>
+                        <div class="col-sm-10">
+                            <select name="sameday_open_package" id="input_open_package" class="form-control">
+                                <option value="0" <?php if (!$sameday_open_package) { ?>selected="selected"<?php } ?>><?php echo $text_disabled; ?></option>
+                                <option value="1" <?php if ($sameday_open_package) { ?>selected="selected"<?php } ?>><?php echo $text_enabled; ?></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input_open_package_label"><?php echo $entry_open_package_label; ?></label>
+                        <div class="col-sm-10">
+                            <input type="text" name="sameday_open_package_label" value="<?php echo $sameday_open_package_label; ?>" placeholder="<?php echo $entry_open_package_label; ?>" id="sameday_open_package_label" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-2 control-label" for="input-sort-order"><?php echo $entry_sort_order; ?></label>
                         <div class="col-sm-10">
                             <input type="text" name="sameday_sort_order" value="<?php echo $sameday_sort_order; ?>" placeholder="<?php echo $entry_sort_order; ?>" id="input-sort-order" class="form-control" />

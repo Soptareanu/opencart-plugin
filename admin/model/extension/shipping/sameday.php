@@ -138,15 +138,28 @@ class ModelExtensionShippingSameday extends Model
         $this->db->query('alter table '. DB_PREFIX .'sameday_service add sameday_code VARCHAR(255) default \'\' not null');
     }
 
+    public function ensureSamedayServiceOptionalTaxesColumn()
+    {
+        $query = 'SHOW COLUMNS FROM ' . DB_PREFIX . "sameday_service LIKE 'service_optional_taxes'";
+        $row = $this->db->query($query)->row;
+
+        if ($row) {
+            return;
+        }
+
+        $this->db->query('alter table '. DB_PREFIX .'sameday_service add service_optional_taxes TEXT default null');
+    }
+
     /**
      * @param int $id
      * @param string $samedayServiceCode
      */
-    public function updateServiceCode($id, $samedayServiceCode)
+    public function updateServiceCodeAndOptionalTaxes($id, $samedayServiceCode, $optionalTaxes)
     {
         $this->db->query('
             UPDATE ' . DB_PREFIX . "sameday_service SET 
-                sameday_code='{$this->db->escape($samedayServiceCode)}'
+                sameday_code = '{$this->db->escape($samedayServiceCode)}',
+                service_optional_taxes = '{$this->db->escape($optionalTaxes)}'
             WHERE 
                 id = '{$this->db->escape($id)}'
         ");
@@ -158,19 +171,22 @@ class ModelExtensionShippingSameday extends Model
      */
     public function addService(\Sameday\Objects\Service\ServiceObject $service, $testing)
     {
+        $optionalTaxes = !empty($service->getOptionalTaxes()) ? serialize($service->getOptionalTaxes()) : '';
         $query = '
             INSERT INTO ' . DB_PREFIX . "sameday_service (
                 sameday_id, 
                 sameday_name, 
                 sameday_code,
                 testing, 
-                status
+                status,
+                service_optional_taxes,
             ) VALUES (
                 '{$this->db->escape($service->getId())}', 
                 '{$this->db->escape($service->getName())}', 
                 '{$this->db->escape($service->getCode())}', 
                 '{$this->db->escape($testing)}',
-                0
+                0,
+                '{$this->db->escape($optionalTaxes)}'
             )";
 
         $this->db->query($query);
@@ -510,6 +526,7 @@ class ModelExtensionShippingSameday extends Model
                 price_free DOUBLE(10, 2),
                 status INT(11),
                 working_days TEXT,
+                service_optional_taxes TEXT,
                 PRIMARY KEY (id)
             ) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;
         ';
