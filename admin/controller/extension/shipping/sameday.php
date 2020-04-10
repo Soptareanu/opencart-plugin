@@ -630,6 +630,7 @@ class ControllerExtensionShippingSameday extends Controller
             'sameday_package_type',
             'sameday_pickup_point',
             'sameday_service',
+            'sameday_service_open_package',
             'sameday_awb_payment',
             'sameday_third_party_pickup',
             'sameday_third_party_pickup_county',
@@ -679,6 +680,8 @@ class ControllerExtensionShippingSameday extends Controller
             'entry_awb_payment',
             'entry_service',
             'entry_service_title',
+            'entry_service_open_package',
+            'entry_service_title_open_package',
             'entry_awb_payment_title',
             'entry_third_party_pickup',
             'entry_third_party_pickup_title',
@@ -708,11 +711,12 @@ class ControllerExtensionShippingSameday extends Controller
 
         $parts = explode('.', $orderInfo['shipping_code'], 4);
         $data['default_service_id'] = isset($parts[2]) ? $parts[2] : null;
+        $data['is_opcg'] = null;
+
         $orderInfo['locker_id'] = null;
-        $orderInfo['is_opcg'] = null;
         if (isset($parts[3])) {
             if ($parts[3] === 'isOpcg') {
-                $orderInfo['is_opcg'] = 1;
+                $data['is_opcg'] = 1;
             } else {
                 $orderInfo['locker_id'] = $parts[3];
             }
@@ -1011,6 +1015,19 @@ class ControllerExtensionShippingSameday extends Controller
         $county = isset($locker) ? $locker['county'] : $params['shipping_zone'];
         $address = isset($locker) ? $locker['address'] : trim($params['shipping_address_1'] . ' ' . $params['shipping_address_2']);
 
+        $serviceTaxIds = [];
+        if (isset($params['sameday_service_open_package']) && $params['sameday_service_open_package'] !== '') {
+            $service = $this->model_extension_shipping_sameday->getServiceSameday($params['sameday_service'], $this->isTesting());
+            $optionalTaxes = unserialize($service['service_optional_taxes']);
+            /** @var  Sameday\Objects\Service\OptionalTaxObject $optionalTax */
+            foreach ($optionalTaxes as $optionalTax) {
+                if ($optionalTax->getCode() === 'OPCG' && $optionalTax->getPackageType()->getType() === \Sameday\Objects\Types\PackageType::PARCEL) {
+                    $serviceTaxIds[] = $optionalTax->getId();
+                    break;
+                }
+            }
+        }
+
         $request = new \Sameday\Requests\SamedayPostAwbRequest(
             $params['sameday_pickup_point'],
             null,
@@ -1031,7 +1048,7 @@ class ControllerExtensionShippingSameday extends Controller
             $params['sameday_ramburs'],
             new \Sameday\Objects\Types\CodCollectorType(\Sameday\Objects\Types\CodCollectorType::CLIENT),
             $thirdPartyPickUp,
-            array(),
+            $serviceTaxIds,
             null,
             null,
             $params['sameday_observation'],

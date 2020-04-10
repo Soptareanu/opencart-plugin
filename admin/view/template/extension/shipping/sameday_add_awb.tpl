@@ -151,6 +151,18 @@
                             </div>
                         </div>
 
+                        <!-- Open package //-->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="input-status-sameday_service_open_package"><span data-toggle="tooltip" title="<?php echo $entry_service_title_open_package; ?>"><?php echo $entry_service_open_package; ?></label>
+                            <div class="col-sm-10">
+                                    <div class="checkbox-inline">
+                                        <label>
+                                            <input type="checkbox" name="sameday_service_open_package"  id="input-status-sameday_service_open_package" style="vertical-align: top;" <?php if ($is_opcg) { ?> checked="checked" <?php } ?> >
+                                        </label>
+                                    </div>
+                            </div>
+                        </div>
+
                         <!-- Third Party Pick-up //-->
                         <div class="form-group">
                             <label class="col-sm-2 control-label" for="input-status-sameday-third_party_pickup"><span data-toggle="tooltip" title="<?php echo $entry_third_party_pickup_title; ?>"><?php echo $entry_third_party_pickup; ?></label>

@@ -74,7 +74,7 @@ class ModelExtensionShippingSameday extends Model
 
             $quote_data[$service['name']] = array(
                 'sameday_name' => $service['name'],
-                'code' => 'sameday.' . $service['sameday_code'] . '.' . $service['sameday_id'],
+                'code' => 'sameday.' . $service['name'] . '.' . $service['sameday_id'],
                 'title' => $service['name'],
                 'cost' => $price,
                 'tax_class_id' => $this->getConfig('sameday_tax_class_id'),
