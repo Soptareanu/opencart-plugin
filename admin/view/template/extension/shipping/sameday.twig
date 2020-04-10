@@ -94,7 +94,7 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="input_open_package">{{ entry_open_package }}</label>
                         <div class="col-sm-10">
-                            <select name="sameday_open_package" id="input_open_package" class="form-control">
+                            <select name="shipping_sameday_open_package" id="input_open_package" class="form-control">
                                 <option value="0" {% if sameday_open_package == false %} selected="selected" {% endif %}>{{ text_disabled }}</option>
                                 <option value="1" {% if sameday_open_package == true  %} selected="selected" {% endif %}>{{ text_enabled }}</option>
                             </select>
@@ -103,7 +103,7 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="input_open_package_label">{{ entry_open_package_label }}</label>
                         <div class="col-sm-10">
-                            <input type="text" name="sameday_open_package_label" value="{{ sameday_open_package_label }}" placeholder="{{ entry_open_package_label }}" id="sameday_open_package_label" class="form-control" />
+                            <input type="text" name="shipping_sameday_open_package_label" value="{{ sameday_open_package_label }}" placeholder="{{ entry_open_package_label }}" id="sameday_open_package_label" class="form-control" />
                         </div>
                     </div>
                     <div class="form-group">
