@@ -179,7 +179,7 @@ class ModelExtensionShippingSameday extends Model
                 sameday_code,
                 testing, 
                 status,
-                service_optional_taxes,
+                service_optional_taxes
             ) VALUES (
                 '{$this->db->escape($service->getId())}', 
                 '{$this->db->escape($service->getName())}', 
