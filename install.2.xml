@@ -2,8 +2,7 @@
 <modification>
     <name>OCMOD EDITOR for OpenCart v2</name>
     <code>ocmode-editor</code>
-    <version>1.0.7</version>
-    <version>1.0.6</version>
+    <version>1.0.8</version>
     <author>Sameday Courier</author>
     <link>https://www.sameday.ro/</link>
     <file path="admin/controller/sale/order.php">
@@ -79,18 +78,49 @@
                             </ul>
                         </div>
                     </div>
+                <?php } else { ?>
+                    <?php if (isset($quote['is_open_package']) && $quote['is_open_package'] === '1' && isset($quote['opcg'])) { ?>
+                        <div class="custom-control custom-checkbox sameday_open_package_label" id="sameday_open_package_<?php echo $quote['opcg']?>" style="display: none">
+                            <label class="custom-control-label">
+                                <input type="checkbox" class="sameday_open_package custom-control-input" data-code="<?php echo $quote['code']; ?>" name="sameday_open_package" style="vertical-align: top">
+                                <?php echo $quote['open_package_label']; ?>
+                            </label>
+                        </div>
+                    <?php } ?>
                 <?php } ?>
                 <script>
                 jQuery(document).ready( function ($) {
                     $(document).on("click", "#selectLocker", function() {
+                        $('.sameday_open_package_label').css({ 'display': 'none' });
+
                         lockerValue = $(this).val();
                         $(this).closest(".radio").children()[0].childNodes[1].checked = false;
 
-                        if (lockerValue != "") {
+                        if (lockerValue !== "") {
                             $(this).closest(".radio").children()[0].childNodes[1].checked = true;
                         }
 
                         $(this).closest(".radio").children()[0].childNodes[1].value = lockerValue;
+                    });
+
+                    $(document).on('click', 'input[name="shipping_method"]', function () {
+                        $('.sameday_open_package_label').css({ 'display': 'none' });
+
+                        let serviceId = $(this).data('serviceid');
+                        if (serviceId !== null) {
+                            let openPackage = $('#sameday_open_package_' + serviceId);
+                            openPackage.css({ 'display': 'block' });
+                        }
+                    });
+
+                    $(document).on('click', '.sameday_open_package', function () {
+                        let code = $(this).data('code');
+                        let isOpcg = code + '.isOpcg';
+
+                        $(this).closest(".radio").children()[0].childNodes[1].value = code;
+                        if ($(this).is(':checked')) {
+                            $(this).closest(".radio").children()[0].childNodes[1].value = isOpcg;
+                        }
                     });
                 });
                 </script>
